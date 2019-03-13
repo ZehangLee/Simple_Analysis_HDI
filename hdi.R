@@ -46,17 +46,21 @@ hdi.databank.m$Region=rep(".",nrow(hdi.databank.m))
 
 
 ### East Asia and Pacific
+<<<<<<< HEAD
+hdi.databank.m[which(hdi.databank.m$country_name %in% c("Australia","Brunei Darussalam","Cambodia","China","Fiji",
+=======
 hdi.hdi.databank.mbank.m[which(hdi.databank.m$country_name %in% c("Australia","Brunei Darussalam","Cambodia","China","Fiji",
+>>>>>>> fc063fbfe2d3920a372af746ef08767e7f7f385f
                                     "Hong Kong, China (SAR)","Indonesia","Japan","Kiribati",
                                     "Korea (Republic of)", "Lao People's Democratic Republic",
-                                    "Malaysia","Micronesia (Federated States of)","Mongolia",
-                                    "Samoa","Singapore","Solomon Islands", "Thailand", "Timor-Leste",
+                                    "Malaysia","Marshall Islands","Myanmar","Micronesia (Federated States of)","Mongolia",
+                                    "New Zealand","Palau","Philippines","Samoa","Singapore","Solomon Islands", "Thailand", "Timor-Leste",
                                     "Tonga","Vanuatu", "Viet Nam")),]$Region="East Asia and Pacific"
 
 ### Europe and Central Asia
 hdi.databank.m[which(hdi.databank.m$country_name %in% c("Moldova (Republic of)","Albania","Andorra","Bulgaria","Latvia",
                                     "Armenia","Austria","Azerbaijan","Belarus","Belgium","Bosnia and Herzegovina",
-                                    "Croatia","Cyprus","Czech Republic","Denmark","Estonia","Finland","France",
+                                    "Croatia","Cyprus","Czech Republic","Czechia","Denmark","Estonia","Finland","France",
                                     "Georgia","Germany","Greece","Hungary","Iceland","Ireland","Italy","Kazakhstan",
                                     "Kyrgyzstan","Liechtenstein","Lithuania","Luxembourg","Montenegro","Netherlands",
                                     "The former Yugoslav Republic of Macedonia","Norway","Poland","Portugal","Romania",
@@ -70,13 +74,22 @@ hdi.databank.m[which(hdi.databank.m$country_name %in% c("Antigua and Barbuda","A
                                     "Peru","Puerto Rico","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Suriname",
                                     "Trinidad and Tobago","Uruguay","Venezuela (Bolivarian Republic of)")),]$Region="Latin America and the Caribbean"
 
+### North America
+hdi.databank.m[which(hdi.databank.m$country_name %in% c("Canada","United States")),]$Region="North America"
 
+
+<<<<<<< HEAD
+### Africa
+hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Angola","Benin","Botswana","Burkina Faso","Burundi","Cabo Verde","Cameroon","Chad","Central African Republic",
+                                     "Eswatini (Kingdom of)","Côte d'Ivoire","Comoros","Congo (Democratic Republic of the)","Congo","Equatorial Guinea","Eritrea","Ethiopia","Gabon","Gambia","Swaziland",
+=======
 ### Sub-Saharan Africa
 hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Angola","Benin","Botswana","Burkina Faso","Burundi","Cabo Verde","Cameroon","Chad","Central African Republic",
                                      "Comoros","Congo (Democratic Republic of the)","Congo","Equatorial Guinea","Eritrea","Ethiopia","Gabon","Gambia","Swaziland",
+>>>>>>> fc063fbfe2d3920a372af746ef08767e7f7f385f
                                      "Ghana","Papua New Guinea","Guinea-Bissau","Kenya","Lesotho","Liberia","Madagascar","Malawi","Mali","Mauritania",
                                      "Mauritius","Mozambique","Namibia","Niger","Nigeria","Rwanda","Sao Tome and Principe","Senegal","Seychelles","Guinea",
-                                     "Sierra Leone","South Africa","South Sudan","Sudan","Tanzania (United Republic of)","Togo","Uganda","Zambia","Zimbabwe")),]$Region="Sub-Saharan Africa"
+                                     "Sierra Leone","South Africa","South Sudan","Sudan","Tanzania (United Republic of)","Togo","Uganda","Zambia","Zimbabwe")),]$Region="Africa"
 
 ### South Asia 
 hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Afghanistan","Bangladesh","Bhutan","India","Maldives","Nepal","Pakistan","Sri Lanka","Palestine, State of")),]$Region="South Asia"
