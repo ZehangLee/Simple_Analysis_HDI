@@ -39,26 +39,26 @@ ui <- fluidPage(
                                        ),# fluidRow
                                        
                                        fluidRow(
-                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry countries"),
-                                         column(8,
-                                                selectInput('countries.in', 'Options', unique(hdi.databank.m$country_name), multiple=TRUE, selectize=TRUE)
-                                         )
-                                       ),
+                                         column(6, wellPanel(
+                                           radioButtons("heal.choice", "Inquiry by",
+                                                        choices = c(countries = "heal.countries",
+                                                                    regions = "heal.regions",
+                                                                    levels = "heal.levels"),
+                                                        selected = NA)
+                                         ))),
+                                       hr(),
                                        
-                                       fluidRow(
-                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry regions"),
-                                         column(8,
-                                                selectInput('region.in', 'Options', unique(hdi.databank.m$Region), multiple=TRUE, selectize=TRUE)
-                                         )
-                                       ),
+                                       fluidRow(column(9, 
+                                                       # This outputs the dynamic UI component
+                                                       uiOutput("heal.ui")
+                                       ))
                                        
-                                       fluidRow(
-                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry levels"),
-                                         column(8,
-                                                selectInput('region.in', 'Options', unique(hdi.databank.m$level), multiple=TRUE, selectize=TRUE)
-                                         )
-                                       )
-                                    
+                                       
+                                       
+                                       
+                                       
+                                       
+                                       
                                       
                                       
                                       
@@ -82,9 +82,40 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  output$countries.out <- renderPrint(input$countries.in)
- 
-}
+  
+  output$heal.ui <- renderUI({
+    if (is.null(input$heal.choice))
+      return()
+    
+    # Depending on input$input_type, we'll generate a different
+    # UI component and send it to the client.
+    switch(input$heal.choice,
+           "heal.countries" = fluidRow(
+                       h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry countries"),
+                       column(8,
+                       selectInput('countries.in', 'Options', unique(hdi.databank.m$country_name), multiple=TRUE, selectize=TRUE)
+                        )
+                       ),
+           "heal.regions" = fluidRow(
+                       h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry regions"),
+                       column(8,
+                       selectInput('region.in', 'Options', unique(hdi.databank.m$Region), multiple=TRUE, selectize=TRUE)
+                       )
+                      ),
+           "heal.levels" =  fluidRow(
+                      h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry levels"),
+                      column(8,
+                       selectInput('region.in', 'Options', unique(hdi.databank.m$level), multiple=TRUE, selectize=TRUE)
+                       )
+                      )
+           
+    )
+  })
+  
+  
+}#server
+
+
 # Run the application 
 shinyApp(ui = ui, server = server)
 
