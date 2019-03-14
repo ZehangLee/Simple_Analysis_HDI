@@ -7,7 +7,7 @@ temp2 <- tempfile()
 download.file("http://hdr.undp.org/sites/default/files/2018_statistical_annex_all.xlsx",temp2, mode="wb")
 hdi.stat <- readxl::read_xlsx(temp2,sheet = 1,range = "A3:M198")
 unlink(temp2)
-rm(temp1,temp2)
+rm(temp2)
 
 ###tidy table hdi.databank
 year=as.character(seq(1990,2017))
