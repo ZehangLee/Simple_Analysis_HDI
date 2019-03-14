@@ -8,7 +8,7 @@
 #
 
 library(shiny)
-source("hdi.R")
+#source("hdi.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -16,35 +16,75 @@ ui <- fluidPage(
   titlePanel("Simple Analysis of HDI"),
   
    # Application title
-  tabsetPanel(tabPanel("Health"),
-                tabPanel("Education"),
-                tabPanel("GDI")),
-   
-   
-   
-   
-   
-   
-   sidebarLayout(position = "right",
-                 sidebarPanel("sidebar panel"),
-                 mainPanel("main panel")
-   )
-)
+  tabsetPanel(tabPanel("Health",
+                       sidebarLayout(
+                         position = "right",
+                                     sidebarPanel(
+                                       fluidRow(
+                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry period"),
+                                         column(width=5,
+                                                selectInput(
+                                                  inputId =  "date_from", 
+                                                  label = "Select start year:", 
+                                                  choices = 1990:2017
+                                                )),
+                                         
+                                         column(width=5,offset = 2,
+                                                selectInput(
+                                                  inputId =  "date_to", 
+                                                  label = "Select end year:", 
+                                                  choices = 1990:2017
+                                                )
+                                         )#column
+                                       ),# fluidRow
+                                       
+                                       fluidRow(
+                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry countries"),
+                                         column(8,
+                                                selectInput('countries.in', 'Options', unique(hdi.databank.m$country_name), multiple=TRUE, selectize=TRUE)
+                                         )
+                                       ),
+                                       
+                                       fluidRow(
+                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry regions"),
+                                         column(8,
+                                                selectInput('region.in', 'Options', unique(hdi.databank.m$Region), multiple=TRUE, selectize=TRUE)
+                                         )
+                                       ),
+                                       
+                                       fluidRow(
+                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry levels"),
+                                         column(8,
+                                                selectInput('region.in', 'Options', unique(hdi.databank.m$level), multiple=TRUE, selectize=TRUE)
+                                         )
+                                       )
+                                    
+                                      
+                                      
+                                      
+                                       
+                                     ),#sidebarPanel
+                                     mainPanel("main panel"))),
+              
+              
+              tabPanel("Education",
+                       sidebarLayout(position = "right",
+                                     sidebarPanel("sidebar panel"),
+                                     mainPanel("main panel"))),
+              
+              tabPanel("GDI",
+                       sidebarLayout(position = "right",
+                                     sidebarPanel("sidebar panel"),
+                                     mainPanel("main panel")))
+   )#tabsetPanel
+)#fluidPage
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-   
-   # output$distPlot <- renderPlot({
-   #    # generate bins based on input$bins from ui.R
-   #    x    <- faithful[, 2] 
-   #    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-   #    
-   #    # draw the histogram with the specified number of bins
-   #    hist(x, breaks = bins, col = 'darkgray', border = 'white')
-   # })
+  output$countries.out <- renderPrint(input$countries.in)
+ 
 }
-
 # Run the application 
 shinyApp(ui = ui, server = server)
 

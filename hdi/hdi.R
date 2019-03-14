@@ -86,4 +86,4 @@ hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Afghanistan","Banglade
 ### Arab States
 hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Algeria","Bahrain","Djibouti","Egypt","Iran (Islamic Republic of)","Iraq","Jordan","Kuwait","Lebanon","Libya","Malta","Morocco",
                                      "Israel","Oman","Qatar","Saudi Arabia","Syrian Arab Republic","Tunisia","United Arab Emirates","Yemen")),]$Region="Arab State"
-View(hdi.databank.m)
+
