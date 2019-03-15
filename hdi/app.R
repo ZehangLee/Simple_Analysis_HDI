@@ -7,13 +7,12 @@
 #    http://shiny.rstudio.com/
 #
 
+
 library(shiny)
 library(tidyverse)
-library(ggradar)
 library(shinyWidgets)
-library(ggplot2)
-library(scales)
-#source("hdi.R")
+
+source("hdi.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -115,43 +114,13 @@ server <- function(input, output) {
   
   
   output$heal.overview <- renderPlot({
-    if (is.null(input$heal.level.in)){
-      heal.overview1 <- hdi.databank.m %>% 
-        filter(Region %in% input$heal.geography.in) #%>%
-      #   filter((year>= input$date_from) &(year<= date_to)) %>%
-      #   na.omit(hdi)%>%
-      #   group_by(Region,indicator_name)%>%summarise(avg = mean(hdi))
-      # colnames(heal.overview1)=c("year","geography","indicator_name")
-      
-      heal.overview2 <- hdi.databank.m %>% 
-        filter(country_name %in% input$heal.geography.in) %>%
-        filter((year>= input$date_from) &(year<= input$date_to)) %>%
-        na.omit(hdi)%>%
-        group_by(country_name,indicator_name)%>%summarise(avg = mean(hdi))
-      colnames(heal.overview2)=c("year","geography","indicator_name")
-      
-      heal.overview <- rbind(heal.overview1,heal.overview2)
-      heal.overview %>%
-        mutate_at(vars(avg),funs(rescale)) 
-      
-      heal.overview%>%spread(indicator_name,avg)->heal.overview.final
-      
-      ggradar(heal.overview.final,grid.max=max(heal.overview$avg)+0.01) 
-
-    }else{
-      heal.overview1 <- hdi.databank.m %>% 
-        filter(level %in% input$heal.level.in) %>%
-        filter((year>= input$date_from) &(year<= input$date_to)) %>%
-        na.omit(hdi)%>%
-        group_by(level,indicator_name)%>%summarise(avg = mean(hdi))
-      
-      heal.overview %>%
-        mutate_at(vars(avg),funs(rescale)) 
-      
-      heal.overview%>%spread(indicator_name,avg)->heal.overview.final
-      
-      ggradar(heal.overview.final,grid.max=max(heal.overview$avg)+0.01)
-    }
+    if (is.null(input$heal.choice)|(is.null(input$heal.geography.in)&is.null(input$heal.level.in)))
+      return()
+    
+    heal_radar_fun(heal.level.in = input$heal.level.in,
+                   heal.geography.in = input$heal.geography.in,
+                   date_from = input$date_from,
+                   date_to = input$date_to)
     
   })
   
@@ -161,4 +130,3 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-

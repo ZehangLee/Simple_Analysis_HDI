@@ -1,5 +1,8 @@
 library(openxlsx)
 library(tidyverse)
+library(ggplot2)
+library(scales)
+library(ggradar)
 
 hdi.databank=read.xlsx("http://hdr.undp.org/sites/default/files/2018_all_indicators.xlsx")
 
@@ -87,3 +90,80 @@ hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Afghanistan","Banglade
 hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Algeria","Bahrain","Djibouti","Egypt","Iran (Islamic Republic of)","Iraq","Jordan","Kuwait","Lebanon","Libya","Malta","Morocco",
                                      "Israel","Oman","Qatar","Saudi Arabia","Syrian Arab Republic","Tunisia","United Arab Emirates","Yemen")),]$Region="Arab State"
 
+##############################################################
+#generate radar plot for health overview
+
+heal_radar_fun=function(heal.level.in,heal.geography.in,date_from,date_to){
+  if (is.null(heal.level.in)==TRUE){
+    heal.overview1 <- hdi.databank.m %>% 
+      filter( Region %in% heal.geography.in) %>%
+      filter((year>= date_from) & (year<= date_to)) %>%
+      replace_na(list(hdi=0))%>%
+      group_by(Region,indicator_name)%>%summarise(avg = mean(hdi))
+
+    
+    heal.overview2 <- hdi.databank.m %>% 
+      filter(country_name %in% heal.geography.in) %>%
+      filter((year>= date_from) &(year<= date_to)) %>%
+      replace_na(list(hdi=0))%>%
+      group_by(country_name,indicator_name)%>%summarise(avg = mean(hdi))
+    colnames(heal.overview2)[1]="Region"
+    
+    heal.overview <- rbind(heal.overview1,heal.overview2)
+    # heal.overview %>%
+    #   mutate_at(vars(avg),funs(rescale)) 
+    
+    heal.overview.final=heal.overview%>%spread(indicator_name,avg)
+    colnames(heal.overview.final)[1]="geo"
+    colnames(heal.overview.final)=gsub(" ",".",colnames(heal.overview.final))
+    colnames(heal.overview.final)=gsub(",","",colnames(heal.overview.final))
+    #colnames(heal.overview.final)=gsub("(","",colnames(heal.overview.final))
+    #colnames(heal.overview.final)=gsub(")","",colnames(heal.overview.final))
+    
+    
+    heal.overview.final=heal.overview.final[,c("geo",
+                                               "Current.health.expenditure.(%.of.GDP)",
+                                               "HIV.prevalence.adult.(%.ages.15-49)",
+                                               "Life.expectancy.at.birth.(years)",
+                                               "Mortality.rate.infant.(per.1000.live.births)",
+                                               "Mortality.rate.under-five.(per.1000.live.births)")]
+    heal.overview.final[is.na(heal.overview.final)]=0
+                                               
+    heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`=heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`*10
+    colnames(heal.overview.final)[3]="HIV.prevalence.adult.(per.1000.ages.15-49)"
+    ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
+  }else{
+    heal.overview <- hdi.databank.m %>% 
+      filter( level %in% heal.level.in) %>%
+      filter((year>= date_from) & (year<= date_to)) %>%
+      replace_na(list(hdi=0))%>%
+      group_by(level,indicator_name)%>%summarise(avg = mean(hdi))
+    
+    heal.overview.final=heal.overview%>%spread(indicator_name,avg)
+    colnames(heal.overview.final)=gsub(" ",".",colnames(heal.overview.final))
+    colnames(heal.overview.final)=gsub(",","",colnames(heal.overview.final))
+    #colnames(heal.overview.final)=gsub("(","",colnames(heal.overview.final))
+    #colnames(heal.overview.final)=gsub(")","",colnames(heal.overview.final))
+    
+    
+    heal.overview.final=heal.overview.final[,c("level",
+                                               "Current.health.expenditure.(%.of.GDP)",
+                                               "HIV.prevalence.adult.(%.ages.15-49)",
+                                               "Life.expectancy.at.birth.(years)",
+                                               "Mortality.rate.infant.(per.1000.live.births)",
+                                               "Mortality.rate.under-five.(per.1000.live.births)")]
+    heal.overview.final[is.na(heal.overview.final)]=0
+    
+    heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`=heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`*10
+    colnames(heal.overview.final)[3]="HIV.prevalence.adult.(per.1000.ages.15-49)"
+    
+    ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
+    
+    
+  }
+ 
+}
+
+#heal.level.in=as.null()
+#heal.level.in=c("VERY HIGH HUMAN DEVELOPMENT","LOW HUMAN DEVELOPMENT")
+#heal.overview.test=heal_radar_fun(heal.level.in,date_from=2013,date_to=2016)
