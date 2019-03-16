@@ -60,7 +60,15 @@ ui <- fluidPage(
 
                                       
                                      ),#sidebarPanel
-                                     mainPanel(plotOutput('heal.overview')))),
+                                     mainPanel(fluidRow(
+                                       verticalLayout(plotOutput("heal.overview"),
+                                                   plotOutput("heal.hiv.plot")
+                                                 
+                                       )
+                                     ))
+
+                         )#sidebarLayout
+                       ),#tabPanel
               
               
               tabPanel("Education",
@@ -89,17 +97,17 @@ server <- function(input, output) {
                        h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry geography"),
                        column(8,
                        pickerInput('heal.geography.in', 'Options', choices = list(Region = unique(hdi.databank.m$Region),Country = unique(hdi.databank.m$country_name)), multiple=TRUE, options = list(`max-options` = 4,size=10))
-                       ),
-                       column(3, actionButton('go',"GO"),offset = 2),
-                       column(3,actionButton("clean","Clean All"),offset = 2)
+                       )#,
+                       # column(3, actionButton('go',"GO"),offset = 2),
+                       # column(3,actionButton("clean","Clean All"),offset = 2)
                       ),
            "heal.levels" =  fluidRow(
                       h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry levels"),
                       column(8,
                       pickerInput('heal.level.in', 'Options', unique(hdi.databank.m$level), multiple=TRUE, options = list(`max-options` = 4))
-                       ),
-                      column(3, actionButton('go',"GO"),offset = 2),
-                      column(3,actionButton("clean","Clean All"),offset = 2)
+                       )#,
+                      #column(3, actionButton('go',"GO"),offset = 2),
+                      #column(3,actionButton("clean","Clean All"),offset = 2)
                       )
            
     )
@@ -109,29 +117,41 @@ server <- function(input, output) {
   
 
   
-  observeEvent(input$clean,{
-    updatePickerInput(session, "heal.level.in", value = NULL)
-    updatePickerInput(session, "heal.geography.in", value = NULL)
-    updateSelectInput(session, "date_from",value=NULL)
-    updateSelectInput(session,"date_to",value=NULL)
-    
-  })
+
   
-  observeEvent(input$go,{
-    p <- reactivePlot(heal_radar_fun(heal.level.in = input$heal.level.in,
-                                     heal.geography.in = input$heal.geography.in,
-                                     date_from = input$date_from,
-                                     date_to = input$date_to))
-    
-  })
-  
+  # observeEvent(input$go,{
+  #   datainput <- reactiveValues(heal.level.in=input$heal.level.in,
+  #                               heal.geography.in=input$heal.geography.in,
+  #                               date_from=input$date_from,
+  #                               date_to=input$date_to)
+  #   
+  # })
+  # 
+  # observeEvent(input$clean,{
+  #   datainput <-NULL
+  #   
+  # })
+  # 
   output$heal.overview <- renderPlot({
     if (is.null(input$heal.choice)|(is.null(input$heal.geography.in)&is.null(input$heal.level.in)))
       return()
-    if (is.null(input$go))
-      return()
-    p
+    heal_plot_fun(heal.level.in=input$heal.level.in,
+                   heal.geography.in=input$heal.geography.in,
+                   date_from=input$date_from,
+                   date_to=input$date_to,
+                   plot_type="radar")
 
+  })
+  
+  output$heal.hiv.plot<- renderPlot({
+    if (is.null(input$heal.choice)|(is.null(input$heal.geography.in)&is.null(input$heal.level.in)))
+      return()
+    heal_plot_fun(heal.level.in=input$heal.level.in,
+                  heal.geography.in=input$heal.geography.in,
+                  date_from=input$date_from,
+                  date_to=input$date_to,
+                  plot_type="hiv.plot")
+    
   })
   
   

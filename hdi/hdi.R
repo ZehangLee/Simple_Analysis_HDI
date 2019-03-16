@@ -93,7 +93,7 @@ hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Algeria","Bahrain","Dj
 ##############################################################
 #generate radar plot for health overview
 
-heal_radar_fun=function(heal.level.in,heal.geography.in,date_from,date_to){
+heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_type){
   if (is.null(heal.level.in)==TRUE){
     heal.overview1 <- hdi.databank.m %>% 
       filter( Region %in% heal.geography.in) %>%
@@ -131,7 +131,10 @@ heal_radar_fun=function(heal.level.in,heal.geography.in,date_from,date_to){
                                                
     heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`=heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`*10
     colnames(heal.overview.final)[3]="HIV.prevalence.adult.(per.1000.ages.15-49)"
-    ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
+    hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
+             geom_bar(stat="identity")+
+             coord_flip()
   }else{
     heal.overview <- hdi.databank.m %>% 
       filter( level %in% heal.level.in) %>%
@@ -157,13 +160,26 @@ heal_radar_fun=function(heal.level.in,heal.geography.in,date_from,date_to){
     heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`=heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`*10
     colnames(heal.overview.final)[3]="HIV.prevalence.adult.(per.1000.ages.15-49)"
     
-    ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
-    
-    
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
+    hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
+             geom_bar(stat="identity")+
+             coord_flip()
   }
- 
-}
+  
+  if(plot_type=="radar")
+   return(radar)
 
-#heal.level.in=as.null()
-#heal.level.in=c("VERY HIGH HUMAN DEVELOPMENT","LOW HUMAN DEVELOPMENT")
-#heal.overview.test=heal_radar_fun(heal.level.in,date_from=2013,date_to=2016)
+  if(plot_type=="hiv.plot")
+    return(hiv.plot)
+
+  #return(heal.overview.final)
+ }
+
+# heal.level.in=as.null()
+# #heal.level.in=c("VERY HIGH HUMAN DEVELOPMENT","LOW HUMAN DEVELOPMENT","MEDIUM HUMAN DEVELOPMENT","HIGH HUMAN DEVELOPMENT")
+# heal.overview.test=heal_plot_fun(heal.level.in,date_from=2013,date_to=2016,
+#                                  heal.geography.in=c("China","Angola","Latin America and the Caribbean"),plot_type = "")
+# 
+# ggplot(data=heal.overview.test,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
+#   geom_bar(stat="identity")+
+#   coord_flip()
