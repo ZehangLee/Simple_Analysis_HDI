@@ -131,10 +131,14 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
                                                
     heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`=heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`*10
     colnames(heal.overview.final)[3]="HIV.prevalence.adult.(per.1000.ages.15-49)"
+    
     radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
              geom_bar(stat="identity")+
              coord_flip()
+    expend.plot=ggplot(data = heal.overview.final,mapping = aes(geo,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=geo))+
+      geom_bar(width=0.5,stat="identity")+
+      coord_polar("y")
   }else{
     heal.overview <- hdi.databank.m %>% 
       filter( level %in% heal.level.in) %>%
@@ -164,6 +168,10 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
              geom_bar(stat="identity")+
              coord_flip()
+    
+    expend.plot=ggplot(data = heal.overview.final,mapping = aes(level,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=level))+
+      geom_bar(width=0.5,stat="identity")+
+      coord_polar("y")
   }
   
   if(plot_type=="radar")
@@ -171,6 +179,8 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
 
   if(plot_type=="hiv.plot")
     return(hiv.plot)
+  if(plot_type=="expend.plot")
+    return(expend.plot)
 
   #return(heal.overview.final)
  }
@@ -183,3 +193,4 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
 # ggplot(data=heal.overview.test,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
 #   geom_bar(stat="identity")+
 #   coord_flip()
+

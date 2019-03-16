@@ -23,7 +23,7 @@ ui <- fluidPage(
   tabsetPanel(tabPanel("Health",
                        sidebarLayout(
                          position = "right",
-                                     sidebarPanel(
+                                     sidebarPanel(style = "position:fixed;width:inherit;",
                                        fluidRow(
                                          h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose quiry options"),
                                          column(width=5,
@@ -62,10 +62,12 @@ ui <- fluidPage(
                                      ),#sidebarPanel
                                      mainPanel(fluidRow(
                                        verticalLayout(plotOutput("heal.overview"),
-                                                   plotOutput("heal.hiv.plot")
+                                                   plotOutput("heal.hiv.plot"),
+                                                   plotOutput("heal.expend.plot")
                                                  
-                                       )
-                                     ))
+                                       )#verticalLayout
+                                     )#fluidRow
+                                    )#mainPanel
 
                          )#sidebarLayout
                        ),#tabPanel
@@ -151,6 +153,17 @@ server <- function(input, output) {
                   date_from=input$date_from,
                   date_to=input$date_to,
                   plot_type="hiv.plot")
+    
+  })
+  
+  output$heal.expend.plot<- renderPlot({
+    if (is.null(input$heal.choice)|(is.null(input$heal.geography.in)&is.null(input$heal.level.in)))
+      return()
+    heal_plot_fun(heal.level.in=input$heal.level.in,
+                  heal.geography.in=input$heal.geography.in,
+                  date_from=input$date_from,
+                  date_to=input$date_to,
+                  plot_type="expend.plot")
     
   })
   
