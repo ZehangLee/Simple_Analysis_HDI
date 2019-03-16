@@ -13,7 +13,7 @@ unlink(temp2)
 rm(temp2)
 
 ###tidy table hdi.databank
-year=as.character(seq(1990,2017))
+year=as.character(seq(2000,2017))
 hdi.databank=hdi.databank%>%select(-"9999")%>%gather(one_of(year),key = "year",value = "hdi")
 
 

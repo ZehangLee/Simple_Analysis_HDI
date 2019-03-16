@@ -30,30 +30,19 @@ ui <- fluidPage(
                                                 selectInput(
                                                   inputId =  "date_from", 
                                                   label = "Select start year:", 
-                                                  choices = 1990:2017
+                                                  choices =c(Choose='',2000:2017) 
                                                 )),
                                          
                                          column(width=5,offset = 2,
                                                 selectInput(
                                                   inputId =  "date_to", 
                                                   label = "Select end year:", 
-                                                  choices = 1990:2017
+                                                  choices =c(Choose='',2000:2017)
                                                 )
                                          )#column
                                        ),# fluidRow
                                        hr(),
-                                       
-                                       # fluidRow(column(12,selectInput(inputId = "heal.index",
-                                       #                               "Select index",
-                                       #                               choices =c("Current health expenditure (% of GDP)",
-                                       #                                          "HIV prevalence, adult (% ages 15-49)",
-                                       #                                          "Life expectancy at birth (years)",
-                                       #                                          "Mortality rate, infant (per 1,000 live births)",
-                                       #                                          "Mortality rate, under-five (per 1,000 live births)"),
-                                       #                               width = 300))),
-                                       # 
-                                       # hr(),
-                                       
+
                                        fluidRow(
                                          column(6, wellPanel(
                                            radioButtons("heal.choice", "Inquiry by",
@@ -68,7 +57,8 @@ ui <- fluidPage(
                                                        # This outputs the dynamic UI component
                                                        uiOutput("heal.ui")
                                        ))
-                                       
+
+                                      
                                      ),#sidebarPanel
                                      mainPanel(plotOutput('heal.overview')))),
               
@@ -93,35 +83,55 @@ server <- function(input, output) {
     if (is.null(input$heal.choice))
       return()
     
-    # Depending on input$input_type, we'll generate a different
-    # UI component and send it to the client.
+
     switch(input$heal.choice,
            "heal.geography" = fluidRow(
                        h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry geography"),
                        column(8,
                        pickerInput('heal.geography.in', 'Options', choices = list(Region = unique(hdi.databank.m$Region),Country = unique(hdi.databank.m$country_name)), multiple=TRUE, options = list(`max-options` = 4,size=10))
-                       )
+                       ),
+                       column(3, actionButton('go',"GO"),offset = 2),
+                       column(3,actionButton("clean","Clean All"),offset = 2)
                       ),
            "heal.levels" =  fluidRow(
                       h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry levels"),
                       column(8,
                       pickerInput('heal.level.in', 'Options', unique(hdi.databank.m$level), multiple=TRUE, options = list(`max-options` = 4))
-                       )
+                       ),
+                      column(3, actionButton('go',"GO"),offset = 2),
+                      column(3,actionButton("clean","Clean All"),offset = 2)
                       )
            
     )
+    
+
   })
   
+
+  
+  observeEvent(input$clean,{
+    updatePickerInput(session, "heal.level.in", value = NULL)
+    updatePickerInput(session, "heal.geography.in", value = NULL)
+    updateSelectInput(session, "date_from",value=NULL)
+    updateSelectInput(session,"date_to",value=NULL)
+    
+  })
+  
+  observeEvent(input$go,{
+    p <- reactivePlot(heal_radar_fun(heal.level.in = input$heal.level.in,
+                                     heal.geography.in = input$heal.geography.in,
+                                     date_from = input$date_from,
+                                     date_to = input$date_to))
+    
+  })
   
   output$heal.overview <- renderPlot({
     if (is.null(input$heal.choice)|(is.null(input$heal.geography.in)&is.null(input$heal.level.in)))
       return()
-    
-    heal_radar_fun(heal.level.in = input$heal.level.in,
-                   heal.geography.in = input$heal.geography.in,
-                   date_from = input$date_from,
-                   date_to = input$date_to)
-    
+    if (is.null(input$go))
+      return()
+    p
+
   })
   
   
