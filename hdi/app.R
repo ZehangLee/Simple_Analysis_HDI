@@ -88,7 +88,7 @@ ui <- fluidPage(
 )#fluidPage
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output,session) {
   
   
   output$heal.ui <- renderUI({
@@ -101,17 +101,19 @@ server <- function(input, output) {
                        h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry geography"),
                        column(8,
                        pickerInput('heal.geography.in', 'Options', choices = list(Region = unique(hdi.databank.m$Region),Country = unique(hdi.databank.m$country_name)), multiple=TRUE, options = list(`max-options` = 4,size=10))
-                       )#,
+                       ),
                        # column(3, actionButton('go',"GO"),offset = 2),
                        # column(3,actionButton("clean","Clean All"),offset = 2)
+                       column(11,actionButton("refresh", "Refresh"),offset = 5)
                       ),
            "heal.levels" =  fluidRow(
                       h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose inquiry levels"),
                       column(8,
                       pickerInput('heal.level.in', 'Options', unique(hdi.databank.m$level), multiple=TRUE, options = list(`max-options` = 4))
-                       )#,
+                       ),
                       #column(3, actionButton('go',"GO"),offset = 2),
                       #column(3,actionButton("clean","Clean All"),offset = 2)
+                      column(11,actionButton("refresh", "Refresh"),offset = 5)
                       )
            
     )
@@ -193,6 +195,10 @@ server <- function(input, output) {
   
   
   
+  
+  observeEvent(input$refresh, {
+    session$reload()
+  })
   
 }#server
 
