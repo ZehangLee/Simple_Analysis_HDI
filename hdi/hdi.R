@@ -3,6 +3,7 @@ library(tidyverse)
 library(ggplot2)
 library(scales)
 library(ggradar)
+library(plotly)
 
 hdi.databank=read.xlsx("http://hdr.undp.org/sites/default/files/2018_all_indicators.xlsx")
 
@@ -14,7 +15,8 @@ rm(temp2)
 
 ###tidy table hdi.databank
 year=as.character(seq(2000,2017))
-hdi.databank=hdi.databank%>%select(-"9999")%>%gather(one_of(year),key = "year",value = "hdi")
+drop_years=as.character(seq(1990,1999))
+hdi.databank=hdi.databank%>%select(-c("9999",drop_years))%>%gather(one_of(year),key = "year",value = "hdi")
 
 
 
@@ -132,13 +134,44 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`=heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`*10
     colnames(heal.overview.final)[3]="HIV.prevalence.adult.(per.1000.ages.15-49)"
     
-    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
+    
+    heal.life1=hdi.databank.m %>%
+      filter( Region %in%  heal.geography.in) %>%
+      filter((year>= date_from) & (year<= date_to)) %>%
+      filter( indicator_name =="Life expectancy at birth (years)")%>%
+      select(Region,year,hdi)%>%arrange(year,Region)%>%drop_na(hdi)%>%
+      group_by(year,Region)%>%  summarise(avg = mean(hdi))
+    
+    heal.life2=hdi.databank.m %>%
+      filter( country_name %in%  heal.geography.in) %>%
+      filter((year>= date_from) & (year<= date_to)) %>%
+      filter( indicator_name =="Life expectancy at birth (years)")%>%
+      select(country_name,year,hdi)%>%arrange(year,country_name)%>%drop_na(hdi)%>%
+      group_by(year,country_name)%>%  summarise(avg = mean(hdi))
+    colnames(heal.life2)[2]="Region"
+    
+    heal.life <- rbind(heal.life1,heal.life2)
+    colnames(heal.life)[2]="geo"
+    
+    heal.mortal=heal.overview.final%>%select(c(1,5,6))%>%gather(key="mortal.index",
+                                                               "Mortality.rate.infant.(per.1000.live.births)",
+                                                               "Mortality.rate.under-five.(per.1000.live.births)",
+                                                               value = "values")
+    
+    
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10)
+
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
              geom_bar(stat="identity")+
              coord_flip()
     expend.plot=ggplot(data = heal.overview.final,mapping = aes(geo,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=geo))+
       geom_bar(width=0.5,stat="identity")+
       coord_polar("y")
+    life.plot=ggplot(data=heal.life)+
+              geom_line(aes(x=as.numeric(year),y=avg,group=geo,colour =geo))
+    mortal.plot=ggplot(data=heal.mortal)+geom_bar(aes(x=geo,y=values,fill=mortal.index),stat = "identity",position = "stack")
+
+    
   }else{
     heal.overview <- hdi.databank.m %>% 
       filter( level %in% heal.level.in) %>%
@@ -164,7 +197,22 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`=heal.overview.final$`HIV.prevalence.adult.(%.ages.15-49)`*10
     colnames(heal.overview.final)[3]="HIV.prevalence.adult.(per.1000.ages.15-49)"
     
-    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = 100)
+    heal.life=hdi.databank.m %>%
+      filter( level %in%  heal.level.in) %>%
+      filter((year>= date_from) & (year<= date_to)) %>%
+      filter( indicator_name =="Life expectancy at birth (years)")%>%
+      select(level,year,hdi)%>%arrange(year,level)%>%drop_na(hdi)%>%
+      group_by(year,level)%>%  summarise(avg = mean(hdi))
+    
+    heal.mortal=heal.overview.final%>%select(c(1,5,6))%>%gather(key="mortal.index",
+                                                               "Mortality.rate.infant.(per.1000.live.births)",
+                                                               "Mortality.rate.under-five.(per.1000.live.births)",
+                                                               value = "values")
+    mortal.plot=ggplot(data=heal.mortal)+geom_bar(aes(x=level,y=values,fill=mortal.index),stat = "identity",position = "stack")
+    
+    
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10)
+
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
              geom_bar(stat="identity")+
              coord_flip()
@@ -172,6 +220,8 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     expend.plot=ggplot(data = heal.overview.final,mapping = aes(level,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=level))+
       geom_bar(width=0.5,stat="identity")+
       coord_polar("y")
+    life.plot=life.plot=ggplot(data=heal.life)+
+              geom_line(aes(x=as.numeric(year),y=avg,group=level,colour =level))
   }
   
   if(plot_type=="radar")
@@ -181,6 +231,10 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     return(hiv.plot)
   if(plot_type=="expend.plot")
     return(expend.plot)
+  if(plot_type=="life.plot")
+    return(life.plot)
+  if(plot_type=="mortal.plot")
+    return(mortal.plot)
 
   #return(heal.overview.final)
  }

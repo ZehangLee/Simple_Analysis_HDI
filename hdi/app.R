@@ -63,7 +63,9 @@ ui <- fluidPage(
                                      mainPanel(fluidRow(
                                        verticalLayout(plotOutput("heal.overview"),
                                                    plotOutput("heal.hiv.plot"),
-                                                   plotOutput("heal.expend.plot")
+                                                   plotOutput("heal.expend.plot"),
+                                                   plotOutput("heal.life.plot"),
+                                                   plotOutput("heal.mortal.plot")
                                                  
                                        )#verticalLayout
                                      )#fluidRow
@@ -166,6 +168,30 @@ server <- function(input, output) {
                   plot_type="expend.plot")
     
   })
+  
+  output$heal.life.plot<- renderPlot({
+    if (is.null(input$heal.choice)|(is.null(input$heal.geography.in)&is.null(input$heal.level.in)))
+      return()
+    heal_plot_fun(heal.level.in=input$heal.level.in,
+                  heal.geography.in=input$heal.geography.in,
+                  date_from=input$date_from,
+                  date_to=input$date_to,
+                  plot_type="life.plot")
+    
+  })
+  
+  output$heal.mortal.plot<- renderPlot({
+    if (is.null(input$heal.choice)|(is.null(input$heal.geography.in)&is.null(input$heal.level.in)))
+      return()
+    heal_plot_fun(heal.level.in=input$heal.level.in,
+                  heal.geography.in=input$heal.geography.in,
+                  date_from=input$date_from,
+                  date_to=input$date_to,
+                  plot_type="mortal.plot")
+    
+  })
+  
+  
   
   
 }#server
