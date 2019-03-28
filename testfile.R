@@ -219,4 +219,18 @@ leaflet(map) %>% addTiles() %>%
 
 demo_plot_fun(2003,2107,gen.plot = TRUE)
 
+test=demo.data%>%gather(`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,
+            `Total population (millions)`,
+            `Urban population (%)`,
+            `Young age (0-14) dependency ratio (per 100 people ages 15-64)`,key = "indictor_name",value = "value")
+######################################################################################
+income.data<-hdi.databank.m%>%filter(indicator_name %in% 
+                                       c("Income index",
+                                         "Gross national income (GNI) per capita (2011 PPP $)"))%>%
+  filter((year>= 2013) & (year<= 2017)) %>%
+  select(country_name,year,indicator_name,hdi,level,Region)%>%
+  arrange(year,level)%>%drop_na(hdi)%>%
+  group_by(year,indicator_name,country_name,level,Region)%>%  summarise(avg = mean(hdi))%>%
+  spread(indicator_name,avg)%>%replace_na(list(`Income index`=0,
+                                               `Gross national income (GNI) per capita (2011 PPP $)`=0))
 

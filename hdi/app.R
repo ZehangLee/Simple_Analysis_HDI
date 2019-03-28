@@ -26,68 +26,7 @@ ui <- fluidPage(
   titlePanel("Simple Analysis of HDI"),
   
    # Application title
-  tabsetPanel(tabPanel("Health",
-                       sidebarLayout(
-                         position = "right",
-                                     sidebarPanel(style = "position:fixed;width:inherit;",
-                                       fluidRow(
-                                         h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose quiry options"),
-                                         column(width=5,
-                                                selectInput(
-                                                  inputId =  "date_from", 
-                                                  label = "Select start year:", 
-                                                  choices =c(Choose='',2000:2017) 
-                                                )),
-                                         
-                                         column(width=5,offset = 2,
-                                                selectInput(
-                                                  inputId =  "date_to", 
-                                                  label = "Select end year:", 
-                                                  choices =c(Choose='',2000:2017)
-                                                )
-                                         )#column
-                                       ),# fluidRow
-        
-
-                                       fluidRow(
-                                         column(6, wellPanel(
-                                           radioButtons("heal.choice", "Inquiry by",
-                                                        choices = c(
-                                                                    geography = "heal.geography",
-                                                                    levels = "heal.levels"),
-                                                        selected = NA)
-                                         )),
-                                         column(6,
-                                               helpText("Note:Please choose geography if you want to",
-                                                              "quiry by region or countries. If you care ",
-                                                              "the differences between development levels, ",
-                                                              "please choose level"))
-                                         
-                                         ),#fluidRow
-
-                                       
-                                       fluidRow(column(9, 
-                                                       # This outputs the dynamic UI component
-                                                       uiOutput("heal.ui")
-                                       ))
-
-                                      
-                                     ),#sidebarPanel
-                                     mainPanel(fluidRow(
-                                       verticalLayout(plotOutput("heal.overview"),
-                                                   plotOutput("heal.hiv.plot"),
-                                                   plotOutput("heal.expend.plot"),
-                                                   plotOutput("heal.life.plot"),
-                                                   plotOutput("heal.mortal.plot")
-                                                 
-                                       )#verticalLayout
-                                     )#fluidRow
-                                    )#mainPanel
-
-                         )#sidebarLayout
-                       ),#tabPanel
-              
-              
+  tabsetPanel(
               tabPanel("Demography",
                        verticalLayout(
                          
@@ -127,15 +66,89 @@ ui <- fluidPage(
                                       fluidRow(
                                         column(12, DT::dataTableOutput('demo.table'))
                                       ), #fluidRow
-                                      plotOutput('demo.table.plot')
+                                      plotlyOutput('demo.table.plot')
                          )#verticalLayout
                        ),#tabPanel
+              tabPanel("Health",
+                       sidebarLayout(
+                         position = "right",
+                         sidebarPanel(style = "position:fixed;width:inherit;",
+                                      fluidRow(
+                                        h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose quiry options"),
+                                        column(width=5,
+                                               selectInput(
+                                                 inputId =  "date_from", 
+                                                 label = "Select start year:", 
+                                                 choices =c(Choose='',2000:2017) 
+                                               )),
+                                        
+                                        column(width=5,offset = 2,
+                                               selectInput(
+                                                 inputId =  "date_to", 
+                                                 label = "Select end year:", 
+                                                 choices =c(Choose='',2000:2017)
+                                               )
+                                        )#column
+                                      ),# fluidRow
+                                      
+                                      
+                                      fluidRow(
+                                        column(6, wellPanel(
+                                          radioButtons("heal.choice", "Inquiry by",
+                                                       choices = c(
+                                                         geography = "heal.geography",
+                                                         levels = "heal.levels"),
+                                                       selected = NA)
+                                        )),
+                                        column(6,
+                                               helpText("Note:Please choose geography if you want to",
+                                                        "quiry by region or countries. If you care ",
+                                                        "the differences between development levels, ",
+                                                        "please choose level"))
+                                        
+                                      ),#fluidRow
+                                      
+                                      
+                                      fluidRow(column(9, 
+                                                      # This outputs the dynamic UI component
+                                                      uiOutput("heal.ui")
+                                      ))
+                                      
+                                      
+                         ),#sidebarPanel
+                         mainPanel(fluidRow(
+                           verticalLayout(plotOutput("heal.overview"),
+                                          plotOutput("heal.hiv.plot"),
+                                          plotOutput("heal.expend.plot"),
+                                          plotOutput("heal.life.plot"),
+                                          plotOutput("heal.mortal.plot")
+                                          
+                           )#verticalLayout
+                         )#fluidRow
+                         )#mainPanel
+                         
+                       )#sidebarLayout
+              ),
 
               
-              tabPanel("GDI",
-                       sidebarLayout(position = "right",
-                                     sidebarPanel("sidebar panel"),
-                                     mainPanel("main panel")))
+              tabPanel("Income",
+                       fluidRow(h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose quiry options"),
+                                column(width=5,
+                                       selectInput(
+                                         inputId =  "income_date_from", 
+                                         label = "Select start year:", 
+                                         choices =c(Choose='',2000:2017) 
+                                       )),
+                                
+                                column(width=5,offset = 2,
+                                       selectInput(
+                                         inputId =  "income_date_to", 
+                                         label = "Select end year:", 
+                                         choices =c(Choose='',2000:2017)
+                                       )
+                                )),
+                       splitLayout()
+                       )#tabPanel
    )#tabsetPanel
 )#fluidPage
 
@@ -270,12 +283,10 @@ server <- function(input, output,session) {
     data
   })
 
-  
-  
-  output$demo.table.plot = renderPlot({
+  output$demo.table.plot = renderPlotly({
     data=demodata()
-    
     data$country_name=row.names(data)
+    
 
     #s1 = input$demo.table_rows_selected
     s2 = input$demo.table_rows_current  # rows on the current page
@@ -284,8 +295,15 @@ server <- function(input, output,session) {
     #par(mar = c(4, 4, 1, .1))
     
     if (length(s2)) 
-      ggplot(data=data[s2,])+geom_bar(aes(x=country_name,y=`Total population (millions)`),stat = "identity")+
-                             geom_bar(aes(x=country_name,y=`Urban population (%)`),stat = "identity")
+      print(
+        ggplotly(ggplot(data=NULL,aes(x=country_name))+
+                   geom_bar(aes(y=`Urban population (%)`,fill="Urban population (%)"),data=data[s2,],stat = "identity")+
+                   geom_bar(aes(y=`Young age (0-14) dependency ratio (per 100 people ages 15-64)`,fill="Young age (0-14) dependency ratio (per 100 people ages 15-64)"),data=data[s2,],stat = "identity")+
+                   geom_bar(aes(y=`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,fill="Old-age (65 and older) dependency ratio (per 100 people ages 15-64)"),data=data[s2,],stat = "identity")
+           )
+        )
+                                                    
+                             
       
   })
 
