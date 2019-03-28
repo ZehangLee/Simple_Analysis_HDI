@@ -4,6 +4,9 @@ library(ggplot2)
 library(scales)
 library(ggradar)
 library(plotly)
+library(leaflet)
+library(rworldmap)
+library(RColorBrewer)
 
 hdi.databank=read.xlsx("http://hdr.undp.org/sites/default/files/2018_all_indicators.xlsx")
 
@@ -159,7 +162,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
                                                                value = "values")
     
     
-    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10)
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10)
 
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
              geom_bar(stat="identity")+
@@ -211,7 +214,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     mortal.plot=ggplot(data=heal.mortal)+geom_bar(aes(x=level,y=values,fill=mortal.index),stat = "identity",position = "stack")
     
     
-    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10)
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10)
 
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
              geom_bar(stat="identity")+
@@ -239,12 +242,51 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
   #return(heal.overview.final)
  }
 
-# heal.level.in=as.null()
-# #heal.level.in=c("VERY HIGH HUMAN DEVELOPMENT","LOW HUMAN DEVELOPMENT","MEDIUM HUMAN DEVELOPMENT","HIGH HUMAN DEVELOPMENT")
-# heal.overview.test=heal_plot_fun(heal.level.in,date_from=2013,date_to=2016,
-#                                  heal.geography.in=c("China","Angola","Latin America and the Caribbean"),plot_type = "")
-# 
-# ggplot(data=heal.overview.test,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
-#   geom_bar(stat="identity")+
-#   coord_flip()
+demo_plot_fun=function(demo_date_from,demo_date_to){
+  map=getMap()         
 
+  
+  demo.data<-hdi.databank.m%>%filter(indicator_name %in% 
+                                       c("Total population (millions)","Urban population (%)",
+                                         "Young age (0-14) dependency ratio (per 100 people ages 15-64)",
+                                         "Old-age (65 and older) dependency ratio (per 100 people ages 15-64)"))%>%
+    filter((year>= demo_date_from) & (year<= demo_date_to)) %>%
+    select(iso3,country_name,year,indicator_name,hdi,level,Region)%>%
+    arrange(year,level)%>%drop_na(hdi)%>%
+    group_by(year,indicator_name,iso3,country_name,level,Region)%>%  summarise(avg = mean(hdi))%>%
+    spread(indicator_name,avg)%>%replace_na(list(`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`=0,
+                                                 `Total population (millions)`=0,
+                                                 `Urban population (%)`=0,
+                                                 `Young age (0-14) dependency ratio (per 100 people ages 15-64)`=0))
+  
+    
+  colnames(demo.data)=gsub(" ",".",colnames(demo.data))
+  #colnames(demo.data)=gsub("%","percent",colnames(demo.data))
+  map$`Old-age.(65.and.older).dependency.ratio.(per.100.people.ages.15-64)`=pull(demo.data[match(map$ISO3,demo.data$iso3),"Old-age.(65.and.older).dependency.ratio.(per.100.people.ages.15-64)"])
+  map$`Total.population.(millions)`=pull(demo.data[match(map$ISO3,demo.data$iso3),"Total.population.(millions)" ])
+  map$`Urban.population.(%)`=pull(demo.data[match(map$ISO3,demo.data$iso3),"Urban.population.(%)" ])
+  map$`Young.age.(0-14).dependency.ratio.(per.100.people.ages.15-64)`=pull(demo.data[match(map$ISO3,demo.data$iso3),"Young.age.(0-14).dependency.ratio.(per.100.people.ages.15-64)"])
+  
+  map$level=pull(demo.data[match(map$ISO3,demo.data$iso3),"level"])
+  
+  cc<-brewer.pal(4,"Set3")
+  pal <- colorFactor(palette = cc, domain = map$level,na.color = "#808080")
+  map$labels <- paste0("<strong> Country: </strong> ", map$NAME, "<br/> ",
+                       "<strong> Total population (millions): </strong> ", map$`Total.population.(millions)`, "<br/> ",
+                       "<strong> Urban population (%): </strong> ", map$`Urban.population.(%)`, "<br/> ",
+                       "<strong> Young age (0-14) dependency ratio (per 100 people ages 15-64): </strong> ", map$`Young.age.(0-14).dependency.ratio.(per.100.people.ages.15-64)`, "<br/> ",
+                       "<strong> Old-age (65 and older) dependency ratio (per 100 people ages 15-64): </strong> ", map$`Old-age.(65.and.older).dependency.ratio.(per.100.people.ages.15-64)`, "<br/> ") %>%
+    lapply(htmltools::HTML)
+ 
+    map.plot=leaflet(map) %>% addTiles() %>% 
+      setView(lng = 0, lat = 30, zoom = 2) %>%
+      addPolygons(
+        fillColor = ~pal(map$level),
+        color = "grey",
+        fillOpacity = 0.7,
+        label = ~labels,
+        highlight = highlightOptions(color = "black", bringToFront = TRUE)) %>%
+      leaflet::addLegend(pal = pal, values = ~map$level, opacity = 0.7, title = 'Development levels')
+
+
+}
