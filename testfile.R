@@ -147,7 +147,7 @@ hdi.databank.m %>%
             return(heal.overview.final)
           }
 
-heal.level.in=as.null()
+heal.level.in=as.null()#test for country and region
 #heal.level.in=c("VERY HIGH HUMAN DEVELOPMENT","LOW HUMAN DEVELOPMENT","MEDIUM HUMAN DEVELOPMENT","HIGH HUMAN DEVELOPMENT")
 heal.overview.test=test_heal_plot_fun(heal.level.in,date_from=2013,date_to=2016,
                                            heal.geography.in=c("Arab State","Botswana","Central African Republic","Congo"),plot_type = "")
@@ -156,6 +156,98 @@ ggradar(heal.overview.test,grid.mid = 50,grid.max = max(heal.overview.test[,2:6]
         axis.label.size = 3,axis.label.offset = 0.7)+
         theme(legend.position = 'bottom')+
         guides(fill=guide_legend(nrow=2,byrow = TRUE))
+
+cc<-brewer.pal(4,"Set3")
+
+#hiv.plot=
+  ggplot(data=heal.overview.test,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=cc))+
+  geom_bar(stat="identity",width = 0.5)+
+  scale_fill_manual(values = cc)+
+  labs(title = "HIV Prevalence Adult ‰ (Age 15 to 49)",
+    x = ' ',
+    y = ' ')+
+  theme_minimal()+
+  theme(plot.title = element_text(size=14,face = "bold"),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "none")+
+  geom_text(aes(label=round(`HIV.prevalence.adult.(per.1000.ages.15-49)`,3)),size=3,hjust=0,color="gray27")+
+  coord_flip()
+
+
+expend.plot=
+  ggplot(data = heal.overview.test,mapping = aes(geo,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=geo))+
+  theme_minimal()+
+  labs(title = "Current Health Expenditure of GDP %",
+    x = ' ',
+    y = ' ')+
+  geom_bar(width=0.5,stat="identity")+
+  scale_fill_manual(values = cc)+
+  coord_polar("y")+
+  guides(fill=guide_legend(nrow=1))+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank())
+  
+  
+  
+  heal.life=hdi.databank.m %>%
+    filter( level %in%  unique(hdi.databank.m$level)) %>%
+    filter((year>= 2013) & (year<= 2017)) %>%
+    filter( indicator_name =="Life expectancy at birth (years)")%>%
+    select(level,year,hdi)%>%arrange(year,level)%>%drop_na(hdi)%>%
+    group_by(year,level)%>%  summarise(avg = mean(hdi))
+  
+  
+ life.plot=
+   ggplot(data=heal.life)+
+      theme_minimal()+
+      labs(title = "Life Expectancy at Birth",
+        x = ' ',
+        y = ' ')+
+   geom_line(aes(x=as.numeric(year),y=avg,group=level,colour =level),size=2)+
+      scale_color_manual(values=cc)+
+      theme(axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())+
+      guides(col=guide_legend(nrow=2,byrow = TRUE))
+  
+
+heal.mortal.test=heal.overview.test%>%select(c(1,5,6))%>%gather(key="mortal.index",
+                                                            "Mortality.rate.infant.(per.1000.live.births)",
+                                                            "Mortality.rate.under-five.(per.1000.live.births)",
+                                                            value = "values")
+
+mortal.plot=
+ggplot(data=heal.mortal.test)+
+  theme_minimal()+
+  labs(title = "Mortality Rate of Children",
+    x = ' ',
+    y = ' ')+
+ geom_bar(aes(x=geo,y=values, fill=mortal.index),stat = "identity",position = "stack",width=0.5)+
+ scale_fill_manual(values = cc,labels=c("Mortality Rate Infant ‰","Mortality Rate Under-Five ‰"))+
+  guides(fill=guide_legend(nrow=1))+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ggplot(data = heal.overview.test,mapping = aes(level,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=level))+
 #   geom_bar(width=0.5,stat="identity")+
@@ -174,12 +266,12 @@ library(rworldmap)
 library(RColorBrewer)
 
 
-map=getMap()         
+      
 
 
 
 #####################################################################
-
+map=getMap()   
 demo.data<-hdi.databank.m%>%filter(indicator_name %in%
                                      c("Total population (millions)","Urban population (%)",
                                        "Young age (0-14) dependency ratio (per 100 people ages 15-64)",
@@ -201,27 +293,42 @@ map$`Urban.population.(%)`=pull(demo.data[match(map$ISO3,demo.data$iso3),"Urban.
 map$`Young.age.(0-14).dependency.ratio.(per.100.people.ages.15-64)`=pull(demo.data[match(map$ISO3,demo.data$iso3),"Young.age.(0-14).dependency.ratio.(per.100.people.ages.15-64)"])
 map$level=pull(demo.data[match(map$ISO3,demo.data$iso3),"level"])
 
-cc<-brewer.pal(4,"Set3")
+cc<-brewer.pal(5,"Set3")
 
 pal <- colorFactor(palette =cc, domain = map$level,na.color = "#808080")
+
+
+pal <- colorFactor("YlOrRd", domain = map$level, na.color = "#808080")
+
 map$labels <- paste0("<strong> Country: </strong> ", map$NAME, "<br/> ",
                      "<strong> Total population (millions): </strong> ", map$`Total.population.(millions)`, "<br/> ",
                      "<strong> Urban population (%): </strong> ", map$`Urban.population.(%)`, "<br/> ",
                      "<strong> Young age (0-14) dependency ratio (per 100 people ages 15-64): </strong> ", map$`Young.age.(0-14).dependency.ratio.(per.100.people.ages.15-64)`, "<br/> ",
                      "<strong> Old-age (65 and older) dependency ratio (per 100 people ages 15-64): </strong> ", map$`Old-age.(65.and.older).dependency.ratio.(per.100.people.ages.15-64)`, "<br/> ") %>%
   lapply(htmltools::HTML)
+
 leaflet(map) %>% addTiles() %>%
   setView(lng = 0, lat = 30, zoom = 2) %>%
   addPolygons(
     fillColor = ~pal(map$level),
-    color = "grey",
+    weight = 2,
+    opacity = 1,
+    color = "white",
     fillOpacity = 0.7,
+    dashArray = "3",
     label = ~labels,
-    highlight = highlightOptions(color = "black", bringToFront = TRUE)) %>%
-  leaflet::addLegend(pal = pal, values = ~map$level, opacity = 0.7, title = 'Development levels')
+    highlight = highlightOptions(color = "#666", bringToFront = TRUE),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "15px",
+      direction = "auto")) %>%
+  leaflet::addLegend(pal = pal, values = ~map$level, opacity = 0.7, title = 'Development levels',position="bottomright")
 
+
+#############################
 demo_plot_fun(2003,2107,gen.plot = TRUE)
 
+<<<<<<< HEAD
 test=demo.data%>%gather(`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,
             `Total population (millions)`,
             `Urban population (%)`,
@@ -236,4 +343,12 @@ income.data<-hdi.databank.m%>%filter(indicator_name %in%
   group_by(year,indicator_name,country_name,level,Region)%>%  summarise(avg = mean(hdi))%>%
   spread(indicator_name,avg)%>%replace_na(list(`Income index`=0,
                                                `Gross national income (GNI) per capita (2011 PPP $)`=0))
+=======
+ggplot(data=NULL,aes(x=country_name))+
+           geom_bar(aes(y=`Urban population (%)`,fill="Urban population (%)"),data=demo.data[9,],stat = "identity")+
+           geom_bar(aes(y=`Young age (0-14) dependency ratio (per 100 people ages 15-64)`,fill="Young age (0-14) dependency ratio (per 100 people ages 15-64)"),data=demo.data[9,],stat = "identity")+
+           geom_bar(aes(y=`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,fill="Old-age (65 and older) dependency ratio (per 100 people ages 15-64)"),data=demo.data[9,],stat = "identity")
+         
+
+>>>>>>> 29b8e344128d6975dff771dd4552695c3b4f4a8a
 
