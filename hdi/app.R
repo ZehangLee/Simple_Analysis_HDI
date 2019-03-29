@@ -39,14 +39,16 @@ ui <- fluidPage(
                         selectInput(
                           inputId =  "demo_date_from", 
                           label = "Select start year:", 
-                          choices =c(Choose='',2000:2017) 
+                          choices =c(Choose='',2000:2017),
+                          selected = "2000"
                         )),
                  
                  column(width=5,offset = 2,
                         selectInput(
                           inputId =  "demo_date_to", 
                           label = "Select end year:", 
-                          choices =c(Choose='',2000:2017)
+                          choices =c(Choose='',2000:2017),
+                          selected = "2015"
                         )
                  )#column
                ),# fluidRow
@@ -81,14 +83,16 @@ ui <- fluidPage(
                                      selectInput(
                                        inputId =  "date_from", 
                                        label = "Select start year:", 
-                                       choices =c(Choose='',2000:2017) 
+                                       choices =c(Choose='',2000:2017) ,
+                                       selected = "2000"
                                      )),
                               
                               column(width=4,offset = 2,
                                      selectInput(
                                        inputId =  "date_to", 
                                        label = "Select end year:", 
-                                       choices =c(Choose='',2000:2017)
+                                       choices =c(Choose='',2000:2017),
+                                       selected = "2005"
                                      )
                               )#column
                             ),# fluidRow
@@ -101,7 +105,7 @@ ui <- fluidPage(
                                              choices = c(
                                                geography = "heal.geography",
                                                levels = "heal.levels"),
-                                             selected = NA)
+                                             selected = "heal.geography")
                               ))
                             
                                      
@@ -297,8 +301,7 @@ server <- function(input, output,session) {
                    theme(plot.title = element_text(size=14,face = "bold"),
                          axis.title.x=element_blank(),
                          axis.title.y=element_blank(),
-                         legend.title = element_blank(),
-                         legend.position = "bottom")
+                         legend.title = element_blank())
                        
                    
                  

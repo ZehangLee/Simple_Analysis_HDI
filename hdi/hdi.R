@@ -372,15 +372,24 @@ demo_plot_fun=function(demo_date_from,demo_date_to){
                        "<strong> Old-age (65 and older) dependency ratio (per 100 people ages 15-64): </strong> ", map$`Old-age.(65.and.older).dependency.ratio.(per.100.people.ages.15-64)`, "<br/> ") %>%
     lapply(htmltools::HTML)
   
-  map.plot=leaflet(map) %>% addTiles() %>% 
+  pal <- colorFactor("YlOrRd", domain = map$level, na.color = "#808080")
+  
+  map.plot=leaflet(map) %>% addTiles() %>%
     setView(lng = 0, lat = 30, zoom = 2) %>%
     addPolygons(
       fillColor = ~pal(map$level),
-      color = "grey",
+      weight = 2,
+      opacity = 1,
+      color = "white",
       fillOpacity = 0.7,
+      dashArray = "3",
       label = ~labels,
-      highlight = highlightOptions(color = "black", bringToFront = TRUE)) %>%
-    leaflet::addLegend(pal = pal, values = ~map$level, opacity = 0.7, title = 'Development levels')
+      highlight = highlightOptions(color = "#666", bringToFront = TRUE),
+      labelOptions = labelOptions(
+        style = list("font-weight" = "normal", padding = "3px 8px"),
+        textsize = "15px",
+        direction = "auto")) %>%
+    leaflet::addLegend(pal = pal, values = ~map$level, opacity = 0.7, title = 'Development levels',position="bottomleft")
   
   
 }
