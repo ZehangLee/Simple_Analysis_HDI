@@ -12,26 +12,28 @@ library(shiny)
 library(tidyverse)
 library(shinyWidgets)
 library(DT)
-
+library(shinydashboard)
+library(shinythemes)
 
 source("hdi.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  theme = shinytheme("cerulean"),
   tags$style(type="text/css",
              ".shiny-output-error { visibility: hidden; }",
              ".shiny-output-error:before { visibility: hidden; }"
   ),
   # Sidebar with a slider input for number of bins 
-  titlePanel("Simple Analysis of HDI"),
+#  titlePanel("Simple Analysis of HDI"),
   
   # Application title
-  tabsetPanel(
+  navbarPage(title="A Simple Analysis of Human Development",
     tabPanel("Demography",
              verticalLayout(
                
                fluidRow(
-                 h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose quiry options"),
+                 h4(style = "Please choose quiry options"),
                  column(width=5,
                         selectInput(
                           inputId =  "demo_date_from", 
@@ -70,19 +72,18 @@ ui <- fluidPage(
              )#verticalLayout
     ),#tabPanel
     tabPanel("Health",
-             sidebarLayout(
-               position = "right",
-               sidebarPanel(style = "position:fixed;width:inherit;",
+             
+               sidebarPanel(
                             fluidRow(
-                              h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose quiry options"),
-                              column(width=5,
+                              h4(style =  "Please choose quiry options"),
+                              column(width=4,
                                      selectInput(
                                        inputId =  "date_from", 
                                        label = "Select start year:", 
                                        choices =c(Choose='',2000:2017) 
                                      )),
                               
-                              column(width=5,offset = 2,
+                              column(width=4,offset = 2,
                                      selectInput(
                                        inputId =  "date_to", 
                                        label = "Select end year:", 
@@ -91,7 +92,8 @@ ui <- fluidPage(
                               )#column
                             ),# fluidRow
                             
-                            
+                            helpText("Note:Please choose geography if you want to quiry by region or countries. If you care the differences between development levels, please choose level"),
+             
                             fluidRow(
                               column(6, wellPanel(
                                 radioButtons("heal.choice", "Inquiry by",
@@ -99,13 +101,9 @@ ui <- fluidPage(
                                                geography = "heal.geography",
                                                levels = "heal.levels"),
                                              selected = NA)
-                              )),
-                              column(6,
-                                     helpText("Note:Please choose geography if you want to",
-                                              "quiry by region or countries. If you care ",
-                                              "the differences between development levels, ",
-                                              "please choose level"))
-                              
+                              ))
+                            
+                                     
                             ),#fluidRow
                             
                             
@@ -127,7 +125,7 @@ ui <- fluidPage(
                )#fluidRow
                )#mainPanel
                
-             )#sidebarLayout
+             #sidebarLayout
     ),
     
     

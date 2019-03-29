@@ -99,6 +99,7 @@ hdi.databank.m[which(hdi.databank.m$country_name %in% c ("Algeria","Bahrain","Dj
 #generate radar plot for health overview
 
 heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_type){
+  cc<-brewer.pal(4,"Set3")
   if (is.null(heal.level.in)==TRUE){
     heal.overview1 <- hdi.databank.m %>% 
       filter( Region %in% heal.geography.in) %>%
@@ -164,16 +165,64 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     
     radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10)
     
-    hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
-      geom_bar(stat="identity")+
+    hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=geo))+
+      geom_bar(stat="identity",width = 0.5)+
+      scale_fill_manual(values = cc)+
+      labs(title = "HIV Prevalence Adult (Age 15 to 49 per 1000)",
+           x = ' ',
+           y = ' ')+
+      theme_minimal()+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "none")+
+      geom_text(aes(label=round(`HIV.prevalence.adult.(per.1000.ages.15-49)`,3)),size=3,hjust=0,color="gray27")+
       coord_flip()
-    expend.plot=ggplot(data = heal.overview.final,mapping = aes(geo,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=geo))+
-      geom_bar(width=0.5,stat="identity")+
-      coord_polar("y")
-    life.plot=ggplot(data=heal.life)+
-      geom_line(aes(x=as.numeric(year),y=avg,group=geo,colour =geo))
-    mortal.plot=ggplot(data=heal.mortal)+geom_bar(aes(x=geo,y=values,fill=mortal.index),stat = "identity",position = "stack")
     
+    expend.plot=ggplot(data = heal.overview.final,mapping = aes(x=geo,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=geo))+
+      theme_minimal()+
+      labs(title = "Current Health Expenditure of GDP %",
+           x = ' ',
+           y = ' ')+
+      geom_bar(width=0.5,stat="identity")+
+      scale_fill_manual(values = cc)+
+      coord_polar("y")+
+      guides(fill=guide_legend(nrow=1))+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            axis.text.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())
+    
+    
+    life.plot=ggplot(data=heal.life)+
+      theme_minimal()+
+      labs(title = "Life Expectancy at Birth",
+           x = ' ',
+           y = ' ')+
+      geom_line(aes(x=as.numeric(year),y=avg,group=geo,colour =geo),size=2)+
+      scale_color_manual(values=cc)+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())+
+      guides(col=guide_legend(nrow=2,byrow = TRUE))
+    
+    mortal.plot=ggplot(data=heal.mortal)+
+      theme_minimal()+
+      labs(title = "Mortality Rate of Children",
+           x = ' ',
+           y = ' ')+
+      geom_bar(aes(x=geo,y=values, fill=mortal.index),stat = "identity",position = "stack",width=0.5)+
+      scale_fill_manual(values = cc,labels=c("Mortality Rate Infant (per 1000)","Mortality Rate Under-Five (per 1000)"))+
+      guides(fill=guide_legend(nrow=1))+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())
     
   }else{
     heal.overview <- hdi.databank.m %>% 
@@ -211,25 +260,70 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
                                                                 "Mortality.rate.infant.(per.1000.live.births)",
                                                                 "Mortality.rate.under-five.(per.1000.live.births)",
                                                                 value = "values")
-    mortal.plot=ggplot(data=heal.mortal)+geom_bar(aes(x=level,y=values,fill=mortal.index),stat = "identity",position = "stack")
+    mortal.plot=ggplot(data=heal.mortal)+
+      theme_minimal()+
+      labs(title = "Mortality Rate of Children",
+           x = ' ',
+           y = ' ')+
+      geom_bar(aes(x=level,y=values, fill=mortal.index),stat = "identity",position = "stack",width=0.5)+
+      scale_fill_manual(values = cc,labels=c("Mortality Rate Infant per 1000","Mortality Rate Under-Five per 1000"))+
+      guides(fill=guide_legend(nrow=1))+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())
     
     
     radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10)
     
-    hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`))+
-      geom_bar(stat="identity")+
+    hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=level))+
+      geom_bar(stat="identity",width = 0.5)+
+      scale_fill_manual(values = cc)+
+      labs(title = "HIV Prevalence Adult (Age 15 to 49 per 1000)",
+           x = ' ',
+           y = ' ')+
+      theme_minimal()+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "none")+
+      geom_text(aes(label=round(`HIV.prevalence.adult.(per.1000.ages.15-49)`,3)),size=3,hjust=0,color="gray27")+
       coord_flip()
     
     expend.plot=ggplot(data = heal.overview.final,mapping = aes(level,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=level))+
+      theme_minimal()+
+      labs(title = "Current Health Expenditure of GDP %",
+           x = ' ',
+           y = ' ')+
       geom_bar(width=0.5,stat="identity")+
-      coord_polar("y")
-    life.plot=life.plot=ggplot(data=heal.life)+
-      geom_line(aes(x=as.numeric(year),y=avg,group=level,colour =level))
+      scale_fill_manual(values = cc)+
+      coord_polar("y")+
+      guides(fill=guide_legend(nrow=1))+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            axis.text.y = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())
+    
+    life.plot=ggplot(data=heal.life)+
+      theme_minimal()+
+      labs(title = "Life Expectancy at Birth",
+           x = ' ',
+           y = ' ')+
+      geom_line(aes(x=as.numeric(year),y=avg,group=level,colour =level),size=2)+
+      scale_color_manual(values=cc)+
+      theme(plot.title = element_text(size=14,face = "bold"),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())+
+      guides(col=guide_legend(nrow=2,byrow = TRUE))
   }
   
   if(plot_type=="radar")
     return(radar)
-  
   if(plot_type=="hiv.plot")
     return(hiv.plot)
   if(plot_type=="expend.plot")
@@ -294,3 +388,4 @@ demo_plot_fun=function(demo_date_from,demo_date_to){
 # income_plot_cun=function(income_date_from,income_date_to){
 #    
 # }
+ 

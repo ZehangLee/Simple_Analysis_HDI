@@ -156,7 +156,7 @@ ggradar(heal.overview.test,grid.mid = 50,grid.max = max(heal.overview.test[,2:6]
 
 cc<-brewer.pal(4,"Set3")
 
-hiv.plot=
+#hiv.plot=
   ggplot(data=heal.overview.test,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=cc))+
   geom_bar(stat="identity",width = 0.5)+
   scale_fill_manual(values = cc)+
