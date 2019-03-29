@@ -152,7 +152,10 @@ heal.level.in=as.null()#test for country and region
 heal.overview.test=test_heal_plot_fun(heal.level.in,date_from=2013,date_to=2016,
                                            heal.geography.in=c("Arab State","Botswana","Central African Republic","Congo"),plot_type = "")
 
-ggradar(heal.overview.test,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10)
+ggradar(heal.overview.test,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10,
+        axis.label.size = 3,axis.label.offset = 0.7)+
+        theme(legend.position = 'bottom')+
+        guides(fill=guide_legend(nrow=2,byrow = TRUE))
 
 cc<-brewer.pal(4,"Set3")
 
@@ -325,10 +328,27 @@ leaflet(map) %>% addTiles() %>%
 #############################
 demo_plot_fun(2003,2107,gen.plot = TRUE)
 
+<<<<<<< HEAD
+test=demo.data%>%gather(`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,
+            `Total population (millions)`,
+            `Urban population (%)`,
+            `Young age (0-14) dependency ratio (per 100 people ages 15-64)`,key = "indictor_name",value = "value")
+######################################################################################
+income.data<-hdi.databank.m%>%filter(indicator_name %in% 
+                                       c("Income index",
+                                         "Gross national income (GNI) per capita (2011 PPP $)"))%>%
+  filter((year>= 2013) & (year<= 2017)) %>%
+  select(country_name,year,indicator_name,hdi,level,Region)%>%
+  arrange(year,level)%>%drop_na(hdi)%>%
+  group_by(year,indicator_name,country_name,level,Region)%>%  summarise(avg = mean(hdi))%>%
+  spread(indicator_name,avg)%>%replace_na(list(`Income index`=0,
+                                               `Gross national income (GNI) per capita (2011 PPP $)`=0))
+=======
 ggplot(data=NULL,aes(x=country_name))+
            geom_bar(aes(y=`Urban population (%)`,fill="Urban population (%)"),data=demo.data[9,],stat = "identity")+
            geom_bar(aes(y=`Young age (0-14) dependency ratio (per 100 people ages 15-64)`,fill="Young age (0-14) dependency ratio (per 100 people ages 15-64)"),data=demo.data[9,],stat = "identity")+
            geom_bar(aes(y=`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,fill="Old-age (65 and older) dependency ratio (per 100 people ages 15-64)"),data=demo.data[9,],stat = "identity")
          
 
+>>>>>>> 29b8e344128d6975dff771dd4552695c3b4f4a8a
 

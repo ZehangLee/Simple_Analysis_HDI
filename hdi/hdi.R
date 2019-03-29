@@ -163,7 +163,8 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
                                                                 value = "values")
     
     
-    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10)
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10,axis.label.size = 3,axis.label.offset = 0.5)+
+      theme(legend.position = 'bottom')
     
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=geo))+
       geom_bar(stat="identity",width = 0.5)+
@@ -201,7 +202,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
       labs(title = "Life Expectancy at Birth",
            x = ' ',
            y = ' ')+
-      geom_line(aes(x=as.numeric(year),y=avg,group=geo,colour =geo),size=2)+
+      geom_line(aes(x=as.numeric(year),y=avg,group=geo,colour =geo),size=2)+geom_point(aes(x=as.numeric(year),y=avg,group=geo,colour =geo),size=3)+
       scale_color_manual(values=cc)+
       theme(plot.title = element_text(size=14,face = "bold"),
             axis.title.x=element_blank(),
@@ -275,7 +276,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
             legend.title = element_blank())
     
     
-    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10)
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10,axis.label.size = 3,axis.label.offset = 0.5)+theme(legend.position = 'bottom')
     
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=level))+
       geom_bar(stat="identity",width = 0.5)+
@@ -312,7 +313,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
       labs(title = "Life Expectancy at Birth",
            x = ' ',
            y = ' ')+
-      geom_line(aes(x=as.numeric(year),y=avg,group=level,colour =level),size=2)+
+      geom_line(aes(x=as.numeric(year),y=avg,group=level,colour =level),size=2)+geom_point(aes(x=as.numeric(year),y=avg,group=level,colour =level),size=3)+
       scale_color_manual(values=cc)+
       theme(plot.title = element_text(size=14,face = "bold"),
             axis.title.x=element_blank(),
@@ -371,7 +372,6 @@ demo_plot_fun=function(demo_date_from,demo_date_to){
                        "<strong> Young age (0-14) dependency ratio (per 100 people ages 15-64): </strong> ", map$`Young.age.(0-14).dependency.ratio.(per.100.people.ages.15-64)`, "<br/> ",
                        "<strong> Old-age (65 and older) dependency ratio (per 100 people ages 15-64): </strong> ", map$`Old-age.(65.and.older).dependency.ratio.(per.100.people.ages.15-64)`, "<br/> ") %>%
     lapply(htmltools::HTML)
-  
   pal <- colorFactor("YlOrRd", domain = map$level, na.color = "#808080")
   
   map.plot=leaflet(map) %>% addTiles() %>%
@@ -397,4 +397,3 @@ demo_plot_fun=function(demo_date_from,demo_date_to){
 # income_plot_cun=function(income_date_from,income_date_to){
 #    
 # }
- 

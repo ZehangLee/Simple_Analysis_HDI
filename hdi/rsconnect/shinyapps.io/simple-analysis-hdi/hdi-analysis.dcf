@@ -5,8 +5,8 @@ account: simple-analysis-hdi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 824167
-bundleId: 1973677
+bundleId: 1974129
 url: https://simple-analysis-hdi.shinyapps.io/hdi-analysis/
-when: 1553869790.41186
+when: 1553882574.76478
 asMultiple: FALSE
 asStatic: FALSE
