@@ -147,12 +147,104 @@ hdi.databank.m %>%
             return(heal.overview.final)
           }
 
-heal.level.in=as.null()
+heal.level.in=as.null()#test for country and region
 #heal.level.in=c("VERY HIGH HUMAN DEVELOPMENT","LOW HUMAN DEVELOPMENT","MEDIUM HUMAN DEVELOPMENT","HIGH HUMAN DEVELOPMENT")
 heal.overview.test=test_heal_plot_fun(heal.level.in,date_from=2013,date_to=2016,
                                            heal.geography.in=c("Arab State","Botswana","Central African Republic","Congo"),plot_type = "")
 
 ggradar(heal.overview.test,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10)
+
+cc<-brewer.pal(4,"Set3")
+
+hiv.plot=
+  ggplot(data=heal.overview.test,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=cc))+
+  geom_bar(stat="identity",width = 0.5)+
+  scale_fill_manual(values = cc)+
+  labs(title = "HIV Prevalence Adult ‰ (Age 15 to 49)",
+    x = ' ',
+    y = ' ')+
+  theme_minimal()+
+  theme(plot.title = element_text(size=14,face = "bold"),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "none")+
+  geom_text(aes(label=round(`HIV.prevalence.adult.(per.1000.ages.15-49)`,3)),size=3,hjust=0,color="gray27")+
+  coord_flip()
+
+
+expend.plot=
+  ggplot(data = heal.overview.test,mapping = aes(geo,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=geo))+
+  theme_minimal()+
+  labs(title = "Current Health Expenditure of GDP %",
+    x = ' ',
+    y = ' ')+
+  geom_bar(width=0.5,stat="identity")+
+  scale_fill_manual(values = cc)+
+  coord_polar("y")+
+  guides(fill=guide_legend(nrow=1))+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank())
+  
+  
+  
+  heal.life=hdi.databank.m %>%
+    filter( level %in%  unique(hdi.databank.m$level)) %>%
+    filter((year>= 2013) & (year<= 2017)) %>%
+    filter( indicator_name =="Life expectancy at birth (years)")%>%
+    select(level,year,hdi)%>%arrange(year,level)%>%drop_na(hdi)%>%
+    group_by(year,level)%>%  summarise(avg = mean(hdi))
+  
+  
+ life.plot=
+   ggplot(data=heal.life)+
+      theme_minimal()+
+      labs(title = "Life Expectancy at Birth",
+        x = ' ',
+        y = ' ')+
+   geom_line(aes(x=as.numeric(year),y=avg,group=level,colour =level),size=2)+
+      scale_color_manual(values=cc)+
+      theme(axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank())+
+      guides(col=guide_legend(nrow=2,byrow = TRUE))
+  
+
+heal.mortal.test=heal.overview.test%>%select(c(1,5,6))%>%gather(key="mortal.index",
+                                                            "Mortality.rate.infant.(per.1000.live.births)",
+                                                            "Mortality.rate.under-five.(per.1000.live.births)",
+                                                            value = "values")
+
+mortal.plot=
+ggplot(data=heal.mortal.test)+
+  theme_minimal()+
+  labs(title = "Mortality Rate of Children",
+    x = ' ',
+    y = ' ')+
+ geom_bar(aes(x=geo,y=values, fill=mortal.index),stat = "identity",position = "stack",width=0.5)+
+ scale_fill_manual(values = cc,labels=c("Mortality Rate Infant ‰","Mortality Rate Under-Five ‰"))+
+  guides(fill=guide_legend(nrow=1))+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ggplot(data = heal.overview.test,mapping = aes(level,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=level))+
 #   geom_bar(width=0.5,stat="identity")+
@@ -218,5 +310,11 @@ leaflet(map) %>% addTiles() %>%
   leaflet::addLegend(pal = pal, values = ~map$level, opacity = 0.7, title = 'Development levels')
 
 demo_plot_fun(2003,2107,gen.plot = TRUE)
+
+ggplot(data=NULL,aes(x=country_name))+
+           geom_bar(aes(y=`Urban population (%)`,fill="Urban population (%)"),data=demo.data[9,],stat = "identity")+
+           geom_bar(aes(y=`Young age (0-14) dependency ratio (per 100 people ages 15-64)`,fill="Young age (0-14) dependency ratio (per 100 people ages 15-64)"),data=demo.data[9,],stat = "identity")+
+           geom_bar(aes(y=`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,fill="Old-age (65 and older) dependency ratio (per 100 people ages 15-64)"),data=demo.data[9,],stat = "identity")
+         
 
 
