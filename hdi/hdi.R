@@ -164,8 +164,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
     
     
     radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10,axis.label.size = 3,axis.label.offset = 0.5)+
-      theme(legend.position = 'bottom')+
-      guides(fill=guide_legend(nrow=2,byrow = TRUE))
+      theme(legend.position = 'bottom')
     
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=geo,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=geo))+
       geom_bar(stat="identity",width = 0.5)+
@@ -277,7 +276,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
             legend.title = element_blank())
     
     
-    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10,axis.label.size = 3,axis.label.offset = 0.5)+theme(legend.position = 'bottom')+guide_legend(nrow=2,byrow = TRUE)
+    radar=ggradar(heal.overview.final,grid.mid = 50,grid.max = max(heal.overview.final[,2:6])+10,axis.label.size = 3,axis.label.offset = 0.5)+theme(legend.position = 'bottom')
     
     hiv.plot=ggplot(data=heal.overview.final,mapping = aes(x=level,y=`HIV.prevalence.adult.(per.1000.ages.15-49)`,fill=level))+
       geom_bar(stat="identity",width = 0.5)+
