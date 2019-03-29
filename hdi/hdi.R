@@ -208,7 +208,7 @@ heal_plot_fun=function(heal.level.in,heal.geography.in,date_from,date_to,plot_ty
             axis.title.y=element_blank(),
             legend.position = "bottom",
             legend.title = element_blank())+
-      guides(col=guide_legend(nrow=2,byrow = TRUE))
+      guides(col=guide_legend(nrow=1,byrow = TRUE))
     
     mortal.plot=ggplot(data=heal.mortal)+
       theme_minimal()+

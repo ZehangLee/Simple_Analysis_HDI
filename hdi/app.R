@@ -14,6 +14,7 @@ library(shinyWidgets)
 library(DT)
 library(shinydashboard)
 library(shinythemes)
+library(rsconnect)
 
 source("hdi.R")
 
@@ -129,24 +130,14 @@ ui <- fluidPage(
     ),
     
     
-    tabPanel("Income",
-             fluidRow(h4(style = "margin-left: 20px; margin-bottom: 30px;", "Please choose quiry options"),
-                      column(width=5,
-                             selectInput(
-                               inputId =  "income_date_from", 
-                               label = "Select start year:", 
-                               choices =c(Choose='',2000:2017) 
-                             )),
-                      
-                      column(width=5,offset = 2,
-                             selectInput(
-                               inputId =  "income_date_to", 
-                               label = "Select end year:", 
-                               choices =c(Choose='',2000:2017)
-                             )
-                      )),
-             splitLayout()
-    )#tabPanel
+    tabPanel(title = "References",
+             p("Human Development Index:",a( "http://hdr.undp.org/en/content/human-development-index-hdi", href="http://hdr.undp.org/en/content/human-development-index-hdi")),
+             p("Main Page Setting :",a( "https://bootswatch.com/3/cerulean/", href="https://bootswatch.com/3/cerulean/")),
+             p("R Graph Editing:",a( "https://www.r-graph-gallery.com/", href="https://www.r-graph-gallery.com/")),
+             p("Dashboard Disign:",a( "http://demo.themewagon.com/preview/free-bootstrap-3-admin-dashboard-template", href="http://demo.themewagon.com/preview/free-bootstrap-3-admin-dashboard-template")),
+             p("Shiny Dashboard:",a( "https://rstudio.github.io/shinydashboard/", href="https://rstudio.github.io/shinydashboard/"))
+             
+             )#tabPanel
   )#tabsetPanel
 )#fluidPage
 
@@ -297,7 +288,20 @@ server <- function(input, output,session) {
         ggplotly(ggplot(data=NULL,aes(x=country_name))+
                    geom_bar(aes(y=`Urban population (%)`,fill="Urban population (%)"),data=data[s2,],stat = "identity")+
                    geom_bar(aes(y=`Young age (0-14) dependency ratio (per 100 people ages 15-64)`,fill="Young age (0-14) dependency ratio (per 100 people ages 15-64)"),data=data[s2,],stat = "identity")+
-                   geom_bar(aes(y=`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,fill="Old-age (65 and older) dependency ratio (per 100 people ages 15-64)"),data=data[s2,],stat = "identity")
+                   geom_bar(aes(y=`Old-age (65 and older) dependency ratio (per 100 people ages 15-64)`,fill="Old-age (65 and older) dependency ratio (per 100 people ages 15-64)"),data=data[s2,],stat = "identity")+
+                   labs(title = "Population Statistics",
+                        x = ' ',
+                        y = ' ')+
+                   theme_minimal()+
+                   scale_fill_manual(values = brewer.pal(3,"Set3"))+
+                   theme(plot.title = element_text(size=14,face = "bold"),
+                         axis.title.x=element_blank(),
+                         axis.title.y=element_blank(),
+                         legend.title = element_blank(),
+                         legend.position = "bottom")
+                       
+                   
+                 
         )
       )
     
