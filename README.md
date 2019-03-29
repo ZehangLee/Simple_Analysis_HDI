@@ -6,3 +6,8 @@
 * Team members: Zehang Li(100405319), Shanshan Wu(100401155)
 * GitHub repository url: https://github.com/ZehangLee/Simple_Analysis_HDI
 
+### Important note:
+The ggradar package we use need to install directly from github.
+The code is :
+
+> devtools::install_github("ricardo-bion/ggradar", dependencies=TRUE)
