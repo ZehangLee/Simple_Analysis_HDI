@@ -152,7 +152,10 @@ heal.level.in=as.null()
 heal.overview.test=test_heal_plot_fun(heal.level.in,date_from=2013,date_to=2016,
                                            heal.geography.in=c("Arab State","Botswana","Central African Republic","Congo"),plot_type = "")
 
-ggradar(heal.overview.test,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10)
+ggradar(heal.overview.test,grid.mid = 50,grid.max = max(heal.overview.test[,2:6])+10,
+        axis.label.size = 3,axis.label.offset = 0.7)+
+        theme(legend.position = 'bottom')+
+        guides(fill=guide_legend(nrow=2,byrow = TRUE))
 
 # ggplot(data = heal.overview.test,mapping = aes(level,y=factor(`Current.health.expenditure.(%.of.GDP)`),fill=level))+
 #   geom_bar(width=0.5,stat="identity")+
