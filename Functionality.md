@@ -29,5 +29,3 @@ This App is aiming to give a brief view of the demography and the health status 
 For the Demography part, it is possible to see the whole population, the urban population rate, then young age (0 to 14) rate, and the old age (65 and older) rate. And according to the bar plot at the end of the page, it can be seen large differences among different countries.
 
 For the Health Status part, it is possible to see a brief introduction to different health status by the radar graph. Then the bar chart elaborate the adult HIV prevalence from age 15 to 49, then the current health expenditure of GDP for each selected countries (regions or development levels.). Then the line chart explained how the life expectancy goes along time. The last bar chart represented the mortality rate for each age level.
-
-The link to the app is: https://simple-analysis-hdi.shinyapps.io/hdi-analysis/
